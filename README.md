@@ -370,3 +370,5 @@ Reference: [pixhawk/Hardware licensing terms](https://github.com/pixhawk/hardwar
 ## Contributing
 
 This project is pre-prototype. **Feedback and questions are welcome** via Issues. Pull requests and other contributions won't be reviewed until after the first prototype has flown.
+
+Also for direct questions or feedbacks, naspawpc@gmail.com available.
