@@ -37,7 +37,7 @@ NASPIER 6C follows the **Pixhawk reference architecture**: a dedicated **Flight 
 | **IO MCU** | STM32F103 (Arm Cortex‑M3) |
 | **Reference class** | Pixhawk FMUv6C‑compatible (FMU + IO split architecture) |
 | **Dimensions** | 90 mm × 42 mm |
-| **Power inputs** | Direct battery (XT30, 4–12S), Brick2 (Clickmate CAN-bus 5V), USB (Type‑C & JST) |
+| **Power inputs** | Direct battery (XT30, 4–12S), Brick Input (JST GH, I2C-based 5V), USB (Type‑C & JST) |
 | **Buses** | 2× CAN, 3× TELEM (UART), 2× GPS ports, SBUS/PPM/DSM RC input, 16× PWM/servo outputs |
 | **Storage** | microSD (logging) + onboard non-volatile parameter memory |
 | **Debug** | Separate debug headers for FMU and IO MCUs |
@@ -46,13 +46,13 @@ NASPIER 6C follows the **Pixhawk reference architecture**: a dedicated **Flight 
 
 ## Key Features
 
-- **Multi-source, arbitrated power input** — battery, Clickmate Brick2, and USB power are automatically arbitrated onto a single system rail, so losing one source doesn't interrupt the board.
+- **Multi-source, arbitrated power input** — battery, Brick Input, and USB power are automatically arbitrated onto a single system rail, so losing one source doesn't interrupt the board.
 - **Isolated per-sensor power rails** — independently switchable sensor power rails, reducing noise coupling and enabling per-sensor power cycling.
 - **IMU on a separate flex daughter-board** — inertial sensors connect through a board-to-board flex connector, following standard Pixhawk practice of mechanically isolating the IMU stack from the main PCB for vibration damping.
 - **Onboard barometer** for altitude sensing.
 - **Non-volatile parameter storage** in addition to microSD logging.
 - **Independent debug access** to both the FMU and IO microcontrollers.
-- **Dual battery monitoring** — Direct Battery input and Brick2 each report status independently to the FMU (Brick2 reports voltage and current; Direct Battery input reports voltage — current sensing on this input was removed in this version).
+- **Dual battery monitoring** — Direct Battery input and Brick Input each report status independently to the FMU (Brick Input reports voltage and current over I2C; Direct Battery input reports voltage only — the current-sense shunt is not populated on this input).
 - **Per-rail overcurrent protection** — peripheral power buses are individually current-limited and fault-monitored, so a shorted accessory doesn't brown out the whole board.
 
 ---
@@ -60,8 +60,8 @@ NASPIER 6C follows the **Pixhawk reference architecture**: a dedicated **Flight 
 ## Architecture
 
 ```
-      Direct Battery (XT30, 4-12S)     -->  Highest priorty   --> 
-      Brick2 (Clickmate, CAN-bus 5V)   -->  Secondary priorty --> LTC4417 Power Mux --> System 5V
+      Direct Battery (XT30, 4-12S)     -->  Highest priority  --> 
+      Brick Input (JST GH, I2C 5V)     -->  Secondary priority --> LTC4417 Power Mux --> System 5V
       USB (Type-C / JST)               -->  Third priority    --> 
 
                                     │
@@ -93,14 +93,14 @@ The FMU handles all flight-critical sensing, estimation, and control, plus telem
 | Input | Description |
 |---|---|
 | **Direct Battery Input** | XT30 connector, 4S–12S range |
-| **Brick2** | Clickmate connector, CAN-bus connected, standard 5V power input (redundant power brick) |
+| **Brick Input** | JST GH connector, I2C-based, standard 5V power input (redundant power brick) |
 | **Type‑C & USB JST** | USB power input, 4.7–5.2V |
 
 ### Power Domains
 
 | Domain | Description |
 |---|---|
-| **System 5V Bus** | Automatically arbitrated from whichever input (Direct Battery, Brick2, or USB) is healthy; powers the whole board |
+| **System 5V Bus** | Automatically arbitrated from whichever input (Direct Battery, Brick Input, or USB) is healthy; powers the whole board |
 | **FMU 3.3V Rail** | Powers the flight management unit |
 | **IO 3.3V Rail** | Powers the IO co-processor |
 | **Sensor 3.3V Rails (isolated)** | Independently switchable rails for onboard/companion sensors |
@@ -109,7 +109,7 @@ The FMU handles all flight-critical sensing, estimation, and control, plus telem
 | **Servo Rail** | Separate, board-independent supply for PWM outputs (BEC/ESC fed) |
 | **DSM 3.3V Rail** | Dedicated supply for Spektrum satellite receivers |
 
-Brick2 reports both voltage and current back to the FMU. The Direct Battery input reports voltage only — current sensing on this input was removed in this version.
+Brick Input reports both voltage and current back to the FMU over I2C. The Direct Battery input reports voltage only — the current-sense shunt is not populated on this input.
 
 ---
 
@@ -265,8 +265,8 @@ IO‑driven auxiliary PWM outputs (same layout as Main PWM).
 
 | Connector | Description |
 |---|---|
-| Direct Battery Input | XT30, primary battery input (4–12S), voltage sensed (current sensing removed in this version) |
-| Brick2 | Clickmate, CAN-bus connected secondary 5V power input, voltage/current sensed |
+| Direct Battery Input | XT30, primary battery input (4–12S), voltage sensed (current-sense shunt not populated on this input) |
+| Brick Input | JST GH, I2C-based secondary 5V power input, voltage/current sensed |
 | Type‑C | USB power/data, 4.7–5.2V |
 | USB JST | USB D+/D− breakout |
 
@@ -357,16 +357,14 @@ PCB manufacturing files (Gerbers, drill files, STEP/3D model, BOM, pick‑and‑
 
 ## License
 
-**CC BY‑SA 3.0** (Creative Commons Attribution‑ShareAlike 3.0) — following the license used by the upstream Pixhawk project.
+**MIT License** — this repository (NASPIER 6C schematic, documentation, and design files) is licensed under the MIT License.
 
-This design is derived from Pixhawk reference files (including RC05, RC11, DS012, and the Pixhawk 6C design standard), which are themselves released under CC BY‑SA 3.0. Per Pixhawk's own hardware licensing terms, boards derived from Pixhawk schematic/reference files must remain open source and cannot be relicensed as proprietary — so this project follows that same license and condition:
-
-- You may use, modify, manufacture, and sell hardware based on these files.
-- You must give appropriate credit/attribution.
-- Any modified version must be shared under the same CC BY‑SA 3.0 license.
+NASPIER 6C follows the Pixhawk **FMUv6C reference class / connector standard** (including RC05, RC11, DS012, and the Pixhawk 6C design standard). Those Pixhawk reference documents are separately released by the upstream Pixhawk project under **CC BY‑SA 3.0** (Creative Commons Attribution‑ShareAlike 3.0), and are credited here accordingly — that license applies to the Pixhawk standards themselves, not to this repository's own files.
 
 Reference: [pixhawk/Hardware licensing terms](https://github.com/pixhawk/hardware).
 
 ## Contributing
 
 This project is pre-prototype. **Feedback and questions are welcome** via Issues. Pull requests and other contributions won't be reviewed until after the first prototype has flown.
+
+**Contact:** naspawpc@gmail.com
