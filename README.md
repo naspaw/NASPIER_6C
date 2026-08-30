@@ -2,7 +2,7 @@
 
 An open, **PX4/ArduPilot-class flight controller** built around an FMU + IO co-processor architecture, following the Pixhawk **FMUv6C** reference class. Designed by Naspaw.
 
-![NASPIER 6C top view](board-top-callouts.png)
+![NASPIER 6C top view](hardware/baseboard/board-top-callouts.png)
 
 > **Status: Initial release — documentation only.** Hardware design has not yet been produced. See [Project Status](#project-status) below.
 
@@ -49,6 +49,7 @@ NASPIER 6C follows the **Pixhawk reference architecture**: a dedicated **Flight 
 - **Multi-source, arbitrated power input** — battery, Brick Input, and USB power are automatically arbitrated onto a single system rail, so losing one source doesn't interrupt the board.
 - **Isolated per-sensor power rails** — independently switchable sensor power rails, reducing noise coupling and enabling per-sensor power cycling.
 - **IMU on a separate flex daughter-board** — inertial sensors connect through a board-to-board flex connector, following standard Pixhawk practice of mechanically isolating the IMU stack from the main PCB for vibration damping.
+- **Heated IMU stack** — FMU-controlled resistive heater on the sensor daughter-board for IMU thermal stabilization.(Typically target temperature between 45-50'C)
 - **Onboard barometer** for altitude sensing.
 - **Non-volatile parameter storage** in addition to microSD logging.
 - **Independent debug access** to both the FMU and IO microcontrollers.
@@ -86,7 +87,7 @@ The FMU handles all flight-critical sensing, estimation, and control, plus telem
 
 ## Power
 
-![Power layout](board-bottom-callouts.png)
+![Power layout](hardware/baseboard/board-bottom-callouts.png)
 
 ### Power Inputs
 
@@ -118,13 +119,14 @@ Brick Input reports both voltage and current back to the FMU over I2C. The Direc
 | Function | Notes |
 |---|---|
 | Barometer (onboard) | Altitude source, on main PCB |
-| IMU 1 — IIM‑42653 (accel + gyro) | On the sensor daughter-board |
-| IMU 2 — BMI088 (accel + gyro) | On the sensor daughter-board |
+| IMU 1 — BMI088 (accel + gyro) | On the sensor daughter-board, own isolated 3.3V rail |
+| IMU 2 — IIM‑42653 (accel + gyro) | On the sensor daughter-board, own isolated 3.3V rail |
 | Magnetometer — IST8310 | On the sensor daughter-board |
-| Parameter memory | Non-volatile storage for calibration/parameters, independent of the SD card |
+| IMU heater | Resistive, MOSFET-driven — on the sensor daughter-board, for IMU thermal stabilization |
+| Parameter memory | Non-volatile storage for calibration/parameters, independent of the SD card — sensor calibration EEPROM lives on the sensor daughter-board itself |
 | Logging storage | microSD, for dataflash logging |
 
-The sensor daughter-board is mounted separately from the main PCB and connects via a board-to-board flex connector, following standard Pixhawk practice of mechanically/vibration-isolating the IMU stack.
+The sensor daughter-board is mounted separately from the main PCB and connects via a board-to-board flex connector, following standard Pixhawk practice of mechanically/vibration-isolating the IMU stack. See [hardware/sensor-board](hardware/sensor-board/) for schematic details.
 
 ---
 
@@ -284,13 +286,13 @@ The two MCUs have fully independent debug access — the IO firmware can be flas
 | Connector | Description |
 |---|---|
 | microSD slot | Onboard, for dataflash logging |
-| FC‑FLEX | Board‑to‑board connector to the IMU sensor daughter‑board ("IMU Flex") |
+| FC‑FLEX | Board‑to‑board connector to the IMU sensor daughter‑board ("IMU Flex"), 34‑pin, 0.4 mm pitch |
 
 ---
 
 ## Mechanical
 
-![Board dimensions](board-dimensions.png)
+![Board dimensions](hardware/baseboard/board-dimensions.png)
 
 - **Board size:** 90 mm × 42 mm
 - **Mounting holes:** Ø3 mm × 4
@@ -314,7 +316,7 @@ This is the **initial release** of the NASPIER 6C design.
 
 - **PCB:** 10-layer stack-up with isolated signal / ground / power layers. Design is currently under review; production has not yet started.
 - **Manufacturing target:** NEXT PCB and JLCPCB — PCB design rules are based on their capabilities.
-- **IMU sensor board:** Being developed in parallel, also awaiting production.
+- **IMU sensor board:** Ready for production.
 - **Mechanical case:** Aluminum + PLA hybrid case design in process.
 - **Firmware:** Not started — planned as the next step once hardware is produced and assembled.
 - **Pricing:** Still being worked out. Currently only PCB production, component, and assembly costs are being calculated; no final price yet.
@@ -344,14 +346,20 @@ NASPIER 6C is **not yet an officially supported PX4 or ArduPilot target**. Firmw
 
 ```
 .
-├── README.md                          # this file
-├── board-top-callouts.png             # top-side connector/component map
-├── board-bottom-callouts.png          # bottom-side power layout
-├── board-dimensions.png               # mechanical dimensions
-└── NASPIER_6C_Schematic.pdf           # full schematic
+├── README.md                                  # this file
+└── hardware/
+    ├── baseboard/                              # FMU + IO main board (NASPIER 6C)
+    │   ├── NASPIER_6C_Schematic.pdf            # full schematic
+    │   ├── board-top-callouts.png              # top-side connector/component map
+    │   ├── board-bottom-callouts.png           # bottom-side power layout
+    │   └── board-dimensions.png                # mechanical dimensions
+    └── sensor-board/                           # IMU sensor daughter-board (NASPIER_IMU-01)
+        ├── README.md                           # component/bus/rail summary, renders, orientation
+        ├── NASPIER_IMU-01_Schematic.pdf        # schematic
+        └── pngs/                               # board renders, dimensions, sensor orientation
 ```
 
-PCB manufacturing files (Gerbers, drill files, STEP/3D model, BOM, pick‑and‑place) are **excluded** from this repository by design.
+PCB manufacturing files (Gerbers, drill files, STEP/3D model, BOM, pick‑and‑place) are **excluded** from this repository by design. The IMU flex cable design (length, stack-up, baseboard-side pinout mapping) is likewise not shared here.
 
 ---
 
