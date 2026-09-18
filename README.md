@@ -365,9 +365,17 @@ PCB manufacturing files (Gerbers, drill files, STEP/3D model, BOM, pick‑and‑
 
 ## License
 
-**MIT License** — this repository (NASPIER 6C schematic, documentation, and design files) is licensed under the MIT License.
+Copyright © 2026 **Ahmet Vapurcu** (**naspaw**). When attributing this design, use that name and a link back to this repository.
 
-NASPIER 6C follows the Pixhawk **FMUv6C reference class / connector standard** (including RC05, RC11, DS012, and the Pixhawk 6C design standard). Those Pixhawk reference documents are separately released by the upstream Pixhawk project under **CC BY‑SA 3.0** (Creative Commons Attribution‑ShareAlike 3.0), and are credited here accordingly — that license applies to the Pixhawk standards themselves, not to this repository's own files.
+The NASPIER 6C design documentation in this repository (schematics, board drawings, and documentation) is released under **[Creative Commons Attribution‑ShareAlike 3.0 Unported (CC BY‑SA 3.0)](LICENSE)** — the same license the Pixhawk project uses for its hardware reference designs.
+
+You may use, share, modify and build on **the documents published here**, including commercially, provided that you **give attribution** and **share any derivative under the same license**.
+
+Note the scope: the license covers what is in this repository. Gerbers, drill files, BOM, pick‑and‑place, the 3D model and the IMU flex cable design are not published (see [Repository Contents](#repository-contents)), so this is open documentation rather than open-source hardware in the OSHWA sense.
+
+NASPIER 6C follows the Pixhawk **FMUv6C reference class / connector standard** (including RC05, RC11, DS‑012, and the Pixhawk 6C design standard), which the upstream Pixhawk project publishes under the same **CC BY‑SA 3.0** license.
+
+Trademarks, part names and the Pixhawk standards referenced here belong to their respective owners.
 
 Reference: [pixhawk/Hardware licensing terms](https://github.com/pixhawk/hardware).
 
